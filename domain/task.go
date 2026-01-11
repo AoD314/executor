@@ -139,6 +139,7 @@ func (t *Tasks) GetJson() string {
 
 	tasks = append(tasks, t.get_task_by_status(1000, STATUS_TASK_RUNNING)...)
 	tasks = append(tasks, t.get_task_by_status(1000, STATUS_TASK_WAITING)...)
+	tasks = append(tasks, t.get_task_by_status(1000, STATUS_TASK_FAILED)...)
 	tasks = append(tasks, t.get_task_by_status(1000, STATUS_TASK_DONE)...)
 
 	var data []byte

@@ -59,23 +59,27 @@ func handler(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
-				Command := data["cmd"].(string)
+				Commands := data["cmds"].(string)
 				Limit, _ := strconv.ParseUint(data["limit"].(string), 10, 16)
 				Type, _ := strconv.ParseInt(data["run"].(string), 10, 16)
 
-				task := &domain.Task{
-					Id:          0,
-					OutputLimit: uint16(Limit),
-					Type_run:    int16(Type),
-					Status:      domain.STATUS_TASK_WAITING,
-					Time_start:  time.Now(),
-					Time_finish: time.Now(),
-					Time_human:  "00:00:00",
-					Command:     Command,
-					Output:      " ",
+				cmds := strings.Split(Commands, "\n")
+
+				for _, cmd := range cmds {
+					task := &domain.Task{
+						Id:          0,
+						OutputLimit: uint16(Limit),
+						Type_run:    int16(Type),
+						Status:      domain.STATUS_TASK_WAITING,
+						Time_start:  time.Now(),
+						Time_finish: time.Now(),
+						Time_human:  "00:00:00",
+						Command:     cmd,
+						Output:      " ",
+					}
+					server.tasks.Add(task)
 				}
 
-				server.tasks.Add(task)
 				w.Write([]byte("{}"))
 			}
 		case "system":

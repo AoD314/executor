@@ -64,37 +64,56 @@ func schedule(s *Scheduler) {
 	}
 }
 
+func removeEmptyAndWhitespaceStrings(arr []string) []string {
+	result := make([]string, 0, len(arr))
+	for _, v := range arr {
+		if strings.TrimSpace(v) != "" {
+			result = append(result, strings.TrimSpace(v))
+		}
+	}
+	return result
+}
+
 func run_command(t *Task, tasks *Tasks) {
 	t.Status = STATUS_TASK_RUNNING
 	t.Time_start = time.Now()
 	tasks.Update(t)
 
-	arr := strings.Split(t.Command, " ")
-	name := arr[0]
-	args := arr[1:]
+	cmds := removeEmptyAndWhitespaceStrings(strings.Split(t.Command, "&&"))
 
-	cmd := exec.Command(name, args...)
-	out, err := cmd.CombinedOutput()
+	for _, one_cmd := range cmds {
 
-	if err == nil {
-		l := len(out)
-		if l <= int(t.OutputLimit) {
-			l = 0
+		one_cmd = strings.TrimSpace(one_cmd)
+		arr := removeEmptyAndWhitespaceStrings(strings.Split(one_cmd, " "))
+
+		name := arr[0]
+		args := arr[1:]
+
+		cmd := exec.Command(name, args...)
+		out, err := cmd.CombinedOutput()
+
+		if err == nil {
+			l := len(out)
+			if l <= int(t.OutputLimit) {
+				l = 0
+			} else {
+				l -= int(t.OutputLimit)
+			}
+			t.Output = strings.ReplaceAll(string(out[l:]), "'", "\"")
+			t.Status = STATUS_TASK_DONE
 		} else {
-			l -= int(t.OutputLimit)
+			l := len(err.Error())
+			if l <= 2*int(t.OutputLimit) {
+				l = 0
+			} else {
+				l -= 2 * int(t.OutputLimit)
+			}
+			t.Output = "ERROR: " + strings.ReplaceAll(string(err.Error()[l:]), "'", "\"")
+			t.Status = STATUS_TASK_FAILED
+			break
 		}
-		t.Output = string(out[l:])
-		t.Status = STATUS_TASK_DONE
-	} else {
-		l := len(err.Error())
-		if l <= 2*int(t.OutputLimit) {
-			l = 0
-		} else {
-			l -= 2 * int(t.OutputLimit)
-		}
-		t.Output = "ERROR: " + string(err.Error()[l:])
-		t.Status = STATUS_TASK_FAILED
 	}
+
 	t.Time_finish = time.Now()
 	tasks.Update(t)
 }
