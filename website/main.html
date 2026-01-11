@@ -2,113 +2,54 @@
 <head>
     <meta charset="UTF-8">
     <title>executor-go</title>
-
     <style>
-
-        .main {
-            background-color: #c4dbf6;
-            width: 95%;
-            border-radius: 10px;
-            padding: 16pt;
+        html {
+            padding: 2em 1em;
+            margin: auto;
         }
 
-        .system_status {
-            font-size: 16pt;
+        .rect-btn {
+            padding-top: 0.2ch;
+            background-color: #000000;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
-        .system_status_runnig {
-            font-size: 16pt;
-            color: green;
+        .status-tbl {
+            border-spacing: 10px;
+            width: 800px;
         }
 
-        .system_status_stoped {
-            font-size: 16pt;
-            color: red;
-        }
-
-        .rectangle-button {
-            background-color: #659dbd;
+        .rect-button {
+            margin-top: 5pt;
+            background-color: #000000;
+            font-size: 14pt;
             color: white;
             border: none;
             cursor: pointer;
-            border-radius: 5px; /* Remove for strict sharp corners */
-        }
-        .rectangle-button:hover {
-            background-color: #558dad;
-        }
-
-        .input-name {
-            width: 314px;
+            border-radius: 5px;
         }
 
         .input-cmd {
-            width: 95%;
-            height: 101pt;
+            width: 99%;
+            height: 64pt;
             font-family: 'Courier New', Courier, monospace;
-        }
-
-        .tabs {
-            max-width: 600px;
-            margin: 20px auto;
-        }
-
-        .tab-links {
-            display: flex;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            border-bottom: 2px solid #ddd;
-        }
-
-        .tab-link {
-            padding: 10px 20px;
-            cursor: pointer;
-            background: #f1f1f1;
-            border: 1px solid #ddd;
-            border-bottom: none;
-            margin-right: 5px;
-            border-radius: 5px 5px 0 0;
-        }
-
-        .tab-link:hover {
-            background: #e1e1e1;
-        }
-
-        .tab-link.active {
-            background: white;
-            position: relative;
-            top: 2px;
-            font-weight: bold;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-top: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Спрячем радиокнопки */
-        .tabs input[type="radio"] {
-            display: none;
+            font-size: 10pt;
         }
     </style>
 </head>
 <body>
     <form id="systemForm">
     <div class="main">
-        <button type="submit" aria-label="Описание действия" class="rectangle-button" id="system_button">
-        <svg xmlns="http://www.w3.org/2000/svg" height="64px" viewBox="0 -960 960 960" width="64px" fill="#e3e3e3">
+        <button type="submit" aria-label="Описание действия" class="rect-btn" id="system_button">
+        <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 -960 960 960" width="32px" fill="#e3e3e3">
             <path d="M200-332v-296l220 148-220 148Zm340 12v-320h60v320h-60Zm160 0v-320h60v320h-60Z"/>
         </svg>
         </button>
         <label>status: </label><label id="status_system">STOPPED</label>
 
-        <select style="float: right; font-size: 16pt;" id="jobs" required>
+        <select style="float: right;" id="jobs" required>
                 <option value="1" selected>1</option>
                 <option value="2">2</option>
                 <option value="3">3</option>
@@ -126,11 +67,12 @@
     </div>
     </form>
 
-    <div class="form-status">
-        <table border=1>
-            <tr><td>Задач в очереди:</td><td><p id="tasks_in_wait"><strong>0</strong></p></td></tr>
-            <tr><td>Задач в работе:</td><td><p id="tasks_in_run"><strong>0</strong></p></td></tr>
-            <tr><td>Задач выполнены:</td><td><p id="tasks_in_done"><strong>0</strong></p></td></tr>
+    <div>
+        <table class="status-tbl">
+            <tr><td>Задач в очереди: <label id="tasks_in_wait">0</label></td>
+                <td>Задач в работе:  <label id="tasks_in_run" >0</label></td>
+                <td>Задач выполнены: <label id="tasks_in_done">0</label></td>
+            </tr>
         </table>
     </div>
     <br>
@@ -153,20 +95,17 @@
                 <option value="1024">1024</option>
                 <option value="2048">2048</option>
                 <option value="4096">4096</option>
+                <option value="8192">8192</option>
             </select>
 
-            <button type="submit" class="rectangle-button">+</button>
+            <button type="submit" class="rect-button">+</button>
         </div>
     </form>
     <br><br>
 
     <div id="tableContainer"></div>
 
-
-
-
     <script>
-
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
         // Обработка успешного ответа
