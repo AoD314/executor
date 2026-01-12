@@ -74,6 +74,42 @@ func removeEmptyAndWhitespaceStrings(arr []string) []string {
 	return result
 }
 
+func mergeStringParams(arr []string) []string {
+	result := make([]string, 0, len(arr))
+
+	isMerging := false
+	arg := make([]string, 0, len(arr))
+	for _, v := range arr {
+		l := len(v)
+		if l > 1 {
+			if v[0] == 34 && v[l-1] != 34 {
+				arg = append(arg, v)
+				isMerging = true
+				continue
+			}
+			if v[l-1] == 34 {
+				arg = append(arg, v)
+				isMerging = false
+			}
+		}
+
+		if isMerging {
+			arg = append(arg, v)
+		} else {
+			if len(arg) == 0 {
+				arg = append(arg, v)
+			}
+			val := strings.Join(arg, " ")
+			if val[0] == 34 {
+				val = val[1 : len(val)-1]
+			}
+			result = append(result, val)
+			arg = arg[:0]
+		}
+	}
+	return result
+}
+
 func run_command(t *Task, tasks *Tasks) {
 	t.Status = STATUS_TASK_RUNNING
 	t.Time_start = time.Now()
@@ -84,10 +120,12 @@ func run_command(t *Task, tasks *Tasks) {
 	for _, one_cmd := range cmds {
 
 		one_cmd = strings.TrimSpace(one_cmd)
-		arr := removeEmptyAndWhitespaceStrings(strings.Split(one_cmd, " "))
+		arr := strings.Split(one_cmd, " ")
 
 		name := arr[0]
 		args := arr[1:]
+
+		args = mergeStringParams(args)
 
 		cmd := exec.Command(name, args...)
 		out, err := cmd.CombinedOutput()
