@@ -57,6 +57,16 @@ func NewSQLiteRepository() *SQLiteRepository {
 			log.Fatal(err)
 		}
 		fmt.Printf("DB already exist: %s\n", path_to_db)
+
+		// fix after crash
+
+		q := fmt.Sprintf("UPDATE tasks SET status = %d WHERE status = %d;", STATUS_TASK_WAITING, STATUS_TASK_RUNNING)
+		fmt.Println(q)
+
+		_, err := db.Exec(q)
+		if err != nil {
+			fmt.Errorf("Error: %s", err)
+		}
 	}
 
 	return &SQLiteRepository{

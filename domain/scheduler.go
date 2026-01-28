@@ -43,7 +43,7 @@ func NewScheduler(max_jobs int, t *Tasks) *Scheduler {
 func schedule(s *Scheduler) {
 	for {
 
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 
 		if s.is_run == false {
 			continue

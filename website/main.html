@@ -81,11 +81,16 @@
             <label>Команда: </label><br>
             <textarea class="input-cmd" name="comment" id="cmd" placeholder="Введите команду" required></textarea><br>
 
-            <label>Режим запуска: </label>
+            <label>Максимальное число задач, которое может выполняться одновременно с этим процесом: </label>
             <select id="run" required>
-                <option value="" disabled selected>Выберите режим запуска</option>
-                <option value="1">Последовательный</option>
-                <option value="2">Параллельный</option>
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="8">8</option>
+                <option value="16">16</option>
+                <option value="32">32</option>
+                <option value="64">64</option>
             </select><br>
 
             <label>Режим запуска: </label>
@@ -104,6 +109,11 @@
     <br><br>
 
     <div id="tableContainer"></div>
+
+    <details>
+        <summary>Done tasks</summary>
+        <div id="tableContainerDoneTask"></div>
+    </details>
 
     <script>
         const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -232,22 +242,15 @@
             }
         }
 
-        async function renderTable(data) {
+        async function render_table(data) {
             // Проверяем, что данные - массив
             if (!Array.isArray(data) || data.length === 0) {
                 tableContainer.innerHTML = '<p>Нет задач</p>';
                 return;
             }
 
-            let count_run = 0;
-            let count_wait = 0;
-            let count_done = 0;
-
-
-            // Получаем названия столбцов из ключей первого объекта
             const headers = Object.keys(data[0]);
 
-            // Создаем таблицу
             let html = '<table border=1>';
 
             // Создаем заголовок таблицы
@@ -256,20 +259,18 @@
                 html += `<th>${header}</th>`;
             });
             html += '</tr></thead>';
-
-            // Создаем тело таблицы
             html += '<tbody>';
+
+                            // Создаем тело таблицы
             data.forEach(row => {
                 html += '<tr>';
+                // строка
                 headers.forEach(header => {
-
                     if (header == "status") {
                         if (row[header] == "1") {
-                            count_wait = count_wait + 1;
                             html += `<td>waiting</td>`;
                         }
                         if (row[header] == "2") {
-                            count_run = count_run + 1;
                             html += `<td>running</td>`;
                         }
                         if (row[header] == "3") {
@@ -279,22 +280,53 @@
                             html += `<td>failed</td>`;
                         }
                         if (row[header] == "5") {
-                            count_done = count_done + 1;
                             html += `<td>done</td>`;
                         }
                     }
                     else {
                         html += `<td>${row[header] || ''}</td>`;
                     }
-
-
                 });
                 html += '</tr>';
             });
             html += '</tbody></table>';
+            return html;
+        }
+
+        async function renderTable(data) {
+            let count_run = 0;
+            let count_wait = 0;
+            let count_done = 0;
+
+            let data_done = [];
+            let data_wait_run = [];
+
+            data.forEach(row => {
+                if (row["status"] == "3" || row["status"] == "4" || row["status"] == "5") {
+                    data_done.push(row);
+                    count_done = count_done + 1;
+                }
+                else {
+                    if (row["status"] == "1" ) {count_wait = count_wait + 1;}
+                    if (row["status"] == "2" ) {count_run = count_run + 1;}
+                    data_wait_run.push(row);
+                }
+            });
 
             // Вставляем таблицу в контейнер
-            document.getElementById('tableContainer').innerHTML = html;
+            if (count_run + count_wait > 0) {
+                document.getElementById('tableContainer').innerHTML = await render_table(data_wait_run);
+            }
+            else {
+                document.getElementById('tableContainer').innerHTML = '<p>Нет задач</p>';
+            }
+
+            if (count_done > 0) {
+                document.getElementById('tableContainerDoneTask').innerHTML = await render_table(data_done);
+            }
+            else {
+                document.getElementById('tableContainerDoneTask').innerHTML = '<p>Нет задач</p>';
+            }
 
             document.getElementById('tasks_in_wait').innerHTML = count_wait;
             document.getElementById('tasks_in_run').innerHTML = count_run;
