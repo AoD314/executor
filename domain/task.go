@@ -122,6 +122,16 @@ func (t *Tasks) Update(task *Task) {
 	}
 }
 
+func (t *Tasks) Delete(id int64) {
+	q := fmt.Sprintf("DELETE FROM tasks WHERE id = %d;", id)
+	fmt.Println(q)
+
+	_, err := t.repo.db.Exec(q)
+	if err != nil {
+		fmt.Errorf("Error: %s", err)
+	}
+}
+
 func (t *Tasks) Add(task *Task) {
 	q := fmt.Sprintf("INSERT INTO tasks (lim, type, status, output, cmd, time_start, time_finish) VALUES (%d, %d, %d, '%s', '%s', '%s', '%s');",
 		task.OutputLimit, task.Type_run, task.Status, task.Output, task.Command, task.Time_start.Format(time.RFC3339), task.Time_finish.Format(time.RFC3339))

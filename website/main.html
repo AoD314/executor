@@ -265,7 +265,7 @@
             data.forEach(row => {
                 html += '<tr>';
 
-                //html += '<td><button type="submit" class="rect-button">+</button></td>';
+                html += `<td><button id="btn_delete-${row["id"]}" >x</button></td>`;
                 // строка
                 headers.forEach(header => {
                     if (header == "status") {
@@ -285,7 +285,7 @@
                             html += `<td>done</td>`;
                         }
                     }
-                    if (header == "tstart" || header == "tfinish") {
+                    else if (header == "tstart" || header == "tfinish") {
                         let t = `${row[header] || ''}`.replace("T", " ").replace("+03:00", "")
                         html += `<td>${t}</td>`;
                     } else {
@@ -307,17 +307,19 @@
             let data_done = [];
             let data_wait_run = [];
 
-            data.forEach(row => {
-                if (row["status"] == "3" || row["status"] == "4" || row["status"] == "5") {
-                    data_done.push(row);
-                    count_done = count_done + 1;
-                }
-                else {
-                    if (row["status"] == "1" ) {count_wait = count_wait + 1;}
-                    if (row["status"] == "2" ) {count_run = count_run + 1;}
-                    data_wait_run.push(row);
-                }
-            });
+            if (data.length > 0) {
+                data.forEach(row => {
+                    if (row["status"] == "3" || row["status"] == "4" || row["status"] == "5") {
+                        data_done.push(row);
+                        count_done = count_done + 1;
+                    }
+                    else {
+                        if (row["status"] == "1" ) {count_wait = count_wait + 1;}
+                        if (row["status"] == "2" ) {count_run = count_run + 1;}
+                        data_wait_run.push(row);
+                    }
+                });
+            }
 
             // Вставляем таблицу в контейнер
             if (count_run + count_wait > 0) {
@@ -341,7 +343,48 @@
 
         window.addEventListener('load', async function() {
             await onLoadData();
+            await set_button_actions();
         });
+
+
+        async function set_button_actions() {
+            // Находим все кнопки по CSS селектору
+            const buttons = document.querySelectorAll('[id^="btn_delete-"]');
+
+            // Добавляем обработчики клика
+            buttons.forEach(button => {
+                // Извлекаем ID из id кнопки (например, "btn_delete-3" -> 3)
+                const buttonId = parseInt(button.id.split('-')[1]);
+
+
+                button.addEventListener('click', async () => {
+                    // Сохраняем оригинальный текст кнопки
+                    button.disabled = true;
+
+                    try {
+                        const response = await fetch("http://localhost:13666/task/", {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(
+                                {"id": buttonId.toString()}
+                            )
+                        });
+
+                        const data = await response.json();
+
+                        // Выводим результат в консоль
+                        console.log(`delete id=${buttonId}:`, data);
+
+                    } catch (error) {
+                        console.error(`Ошибка для кнопки ${buttonId}:`, error);
+                        alert(`Ошибка при отправке запроса от кнопки ${buttonId}`);
+                    } finally {
+                    }
+                });
+            });
+        };
     </script>
 </body>
 </html>

@@ -49,6 +49,20 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				w.Write([]byte(response))
 				return
 			}
+			if r.Method == http.MethodDelete {
+				var data map[string]interface{}
+
+				if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+					http.Error(w, err.Error(), http.StatusBadRequest)
+					return
+				}
+
+				id, _ := strconv.ParseInt(data["id"].(string), 10, 16)
+
+				server.tasks.Delete(id)
+
+				w.Write([]byte("{}"))
+			}
 			if r.Method == http.MethodPost {
 				// create a new task
 
