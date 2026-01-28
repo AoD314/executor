@@ -14,7 +14,7 @@ const STATUS_TASK_DONE = 5
 
 type Task struct {
 	Id          uint32    `json:"id"`
-	OutputLimit uint16    `json:"output_limit"`
+	OutputLimit uint16    `json:"outlim"`
 	Type_run    int16     `json:"type"`
 	Status      int       `json:"status"`
 	Time_start  time.Time `json:"tstart"`

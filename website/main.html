@@ -254,7 +254,7 @@
             let html = '<table border=1>';
 
             // Создаем заголовок таблицы
-            html += '<thead><tr>';
+            html += '<thead><tr><th> </th>';
             headers.forEach(header => {
                 html += `<th>${header}</th>`;
             });
@@ -264,6 +264,8 @@
                             // Создаем тело таблицы
             data.forEach(row => {
                 html += '<tr>';
+
+                //html += '<td><button type="submit" class="rect-button">+</button></td>';
                 // строка
                 headers.forEach(header => {
                     if (header == "status") {
@@ -283,9 +285,13 @@
                             html += `<td>done</td>`;
                         }
                     }
-                    else {
+                    if (header == "tstart" || header == "tfinish") {
+                        let t = `${row[header] || ''}`.replace("T", " ").replace("+03:00", "")
+                        html += `<td>${t}</td>`;
+                    } else {
                         html += `<td>${row[header] || ''}</td>`;
                     }
+
                 });
                 html += '</tr>';
             });
