@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
-
-// const PATH_TO_DB = "~/executor.db"
-const PATH_TO_DB = "/tmp/executor.db"
 
 const TasksTabelDefinition = `
 CREATE TABLE IF NOT EXISTS tasks(
@@ -26,8 +24,8 @@ type SQLiteRepository struct {
 	db *sql.DB
 }
 
-func createDB() *sql.DB {
-	db, err := sql.Open("sqlite3", PATH_TO_DB)
+func createDB(path_to_db string) *sql.DB {
+	db, err := sql.Open("sqlite3", path_to_db)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,15 +41,22 @@ func createDB() *sql.DB {
 func NewSQLiteRepository() *SQLiteRepository {
 	var db *sql.DB
 
-	if _, err := os.Stat(PATH_TO_DB); os.IsNotExist(err) {
-		db = createDB()
-		fmt.Printf("DB isn't exist. Check: %s\n", PATH_TO_DB)
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		panic(err)
+	}
+
+	path_to_db := filepath.Join(homeDir, "executor.db")
+
+	if _, err := os.Stat(path_to_db); os.IsNotExist(err) {
+		db = createDB(path_to_db)
+		fmt.Printf("DB isn't exist. Check: %s\n", path_to_db)
 	} else {
-		db, err = sql.Open("sqlite3", PATH_TO_DB)
+		db, err = sql.Open("sqlite3", path_to_db)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("DB already exist: %s\n", PATH_TO_DB)
+		fmt.Printf("DB already exist: %s\n", path_to_db)
 	}
 
 	return &SQLiteRepository{
