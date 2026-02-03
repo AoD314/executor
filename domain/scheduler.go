@@ -120,7 +120,7 @@ func run_command(t *Task, tasks *Tasks) {
 	for _, one_cmd := range cmds {
 
 		one_cmd = strings.TrimSpace(one_cmd)
-		arr := strings.Split(one_cmd, " ")
+		arr := removeEmptyAndWhitespaceStrings(strings.Split(one_cmd, " "))
 
 		name := arr[0]
 		args := arr[1:]
