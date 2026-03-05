@@ -59,7 +59,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 				id, _ := strconv.ParseInt(data["id"].(string), 10, 16)
 
-				server.tasks.Delete(id)
+				if id == -1 {
+					server.tasks.DeleteByStatus(domain.STATUS_TASK_DONE)
+					server.tasks.DeleteByStatus(domain.STATUS_TASK_FAILED)
+					server.tasks.DeleteByStatus(domain.STATUS_TASK_CANSELED)
+				} else {
+					server.tasks.Delete(id)
+				}
 
 				w.Write([]byte("{}"))
 			}

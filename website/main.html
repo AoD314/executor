@@ -48,7 +48,6 @@
         </svg>
         </button>
         <label>status: </label><label id="status_system">STOPPED</label>
-
         <select style="float: right;" id="jobs" required>
                 <option value="1" selected>1</option>
                 <option value="2">2</option>
@@ -63,6 +62,9 @@
                 <option value="64">64</option>
                 <option value="128">128</option>
         </select>
+        <center>
+            <button id="btn_delete--1" > DELETE_FINISHED_TASKS </button>
+        </center>
         <div style="clear: both;"></div> <!-- Для очистки обтекания -->
     </div>
     </form>
@@ -354,8 +356,12 @@
             // Добавляем обработчики клика
             buttons.forEach(button => {
                 // Извлекаем ID из id кнопки (например, "btn_delete-3" -> 3)
-                const buttonId = parseInt(button.id.split('-')[1]);
+                const btn_id_split = button.id.split('-');
 
+                var buttonId = -1;
+                if (btn_id_split[1] != "") {
+                    buttonId = parseInt(btn_id_split[1]);
+                }
 
                 button.addEventListener('click', async () => {
                     // Сохраняем оригинальный текст кнопки
