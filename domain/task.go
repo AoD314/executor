@@ -3,6 +3,7 @@ package domain
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 )
 
@@ -96,6 +97,8 @@ func (t *Tasks) get_task_by_status(limit int, status int) []Task {
 			fmt.Errorf("Error: %s", err)
 		}
 
+		task.Command = strings.ReplaceAll(task.Command, "''", "'")
+
 		task.Time_start, _ = time.Parse(time.RFC3339, tstart)
 		task.Time_finish, _ = time.Parse(time.RFC3339, tfinish)
 
@@ -113,7 +116,8 @@ func (t *Tasks) get_task_by_status(limit int, status int) []Task {
 }
 
 func (t *Tasks) Update(task *Task) {
-	q := fmt.Sprintf("UPDATE tasks SET lim = '%d', type = '%d', status = '%d', output = '%s', cmd = '%s', time_start = '%s', time_finish = '%s' WHERE id = %d;", task.OutputLimit, task.Type_run, task.Status, task.Output, task.Command, task.Time_start.Format(time.RFC3339), task.Time_finish.Format(time.RFC3339), task.Id)
+	cmd := strings.ReplaceAll(task.Command, "'", "''")
+	q := fmt.Sprintf("UPDATE tasks SET lim = '%d', type = '%d', status = '%d', output = '%s', cmd = '%s', time_start = '%s', time_finish = '%s' WHERE id = %d;", task.OutputLimit, task.Type_run, task.Status, task.Output, cmd, task.Time_start.Format(time.RFC3339), task.Time_finish.Format(time.RFC3339), task.Id)
 	fmt.Println(q)
 
 	_, err := t.repo.db.Exec(q)
@@ -143,8 +147,9 @@ func (t *Tasks) DeleteByStatus(status int) {
 }
 
 func (t *Tasks) Add(task *Task) {
+	cmd := strings.ReplaceAll(task.Command, "'", "''")
 	q := fmt.Sprintf("INSERT INTO tasks (lim, type, status, output, cmd, time_start, time_finish) VALUES (%d, %d, %d, '%s', '%s', '%s', '%s');",
-		task.OutputLimit, task.Type_run, task.Status, task.Output, task.Command, task.Time_start.Format(time.RFC3339), task.Time_finish.Format(time.RFC3339))
+		task.OutputLimit, task.Type_run, task.Status, task.Output, cmd, task.Time_start.Format(time.RFC3339), task.Time_finish.Format(time.RFC3339))
 	fmt.Println(q)
 
 	_, err := t.repo.db.Exec(q)

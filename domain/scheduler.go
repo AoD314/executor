@@ -67,8 +67,10 @@ func schedule(s *Scheduler) {
 func removeEmptyAndWhitespaceStrings(arr []string) []string {
 	result := make([]string, 0, len(arr))
 	for _, v := range arr {
-		if strings.TrimSpace(v) != "" {
-			result = append(result, strings.TrimSpace(v))
+		v = strings.ReplaceAll(v, "''", "'")
+		t := strings.TrimSpace(v)
+		if t != "" {
+			result = append(result, t)
 		}
 	}
 	return result
@@ -126,6 +128,8 @@ func run_command(t *Task, tasks *Tasks) {
 		args := arr[1:]
 
 		args = mergeStringParams(args)
+
+		// fmt.Println(">>>[", name, " ", args, "]")
 
 		cmd := exec.Command(name, args...)
 		out, err := cmd.CombinedOutput()

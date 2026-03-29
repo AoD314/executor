@@ -37,6 +37,23 @@
             font-family: 'Courier New', Courier, monospace;
             font-size: 10pt;
         }
+
+        .responsive-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .responsive-table pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            /*word-break: break-all;   Переносит длинные слова */
+            background-color: #f5f5f5;
+            padding: 5px;
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
@@ -95,7 +112,7 @@
                 <option value="64">64</option>
             </select><br>
 
-            <label>Режим запуска: </label>
+            <label>Ограничение вывода: </label>
             <select id="limit" required>
                 <option value="256" selected>256</option>
                 <option value="512">512</option>
@@ -105,18 +122,18 @@
                 <option value="8192">8192</option>
             </select>
 
-            <button type="submit" class="rect-button">+</button>
+            <button type="submit" class="rect-button"> &MediumSpace; + &MediumSpace;</button>
         </div>
     </form>
     <br><br>
 
-    <div id="tableContainer"></div>
+    <div id="tableContainer" class="responsive-table"></div>
 
     <br>
     <details>
         <summary>Done tasks</summary>
         <br>
-        <div id="tableContainerDoneTask"></div>
+        <div id="tableContainerDoneTask" class="responsive-table"></div>
     </details>
 
     <script>
@@ -149,6 +166,7 @@
 
             // Пытаемся получить JSON ответ
             try {
+                document.getElementById('cmd').value = "";
                 return await response.json();
             } catch (e) {
                 // Если ответ не JSON, возвращаем текстовый ответ
@@ -192,7 +210,6 @@
                 // Скрываем индикатор загрузки
             }
         });
-
 
         document.getElementById('userForm').addEventListener('submit', async function(event) {
             event.preventDefault();
@@ -292,6 +309,8 @@
                     else if (header == "tstart" || header == "tfinish") {
                         let t = `${row[header] || ''}`.replace("T", " ").replace("+03:00", "")
                         html += `<td>${t}</td>`;
+                    } else if (header == "cmd"){
+                        html += `<td><pre>${row[header] || ''}</pre></td>`;
                     } else {
                         html += `<td>${row[header] || ''}</td>`;
                     }
@@ -349,7 +368,6 @@
             await onLoadData();
             await set_button_actions();
         });
-
 
         async function set_button_actions() {
             // Находим все кнопки по CSS селектору
