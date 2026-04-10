@@ -144,13 +144,14 @@ func run_command(t *Task, tasks *Tasks) {
 			t.Output = strings.ReplaceAll(string(out[l:]), "'", "\"")
 			t.Status = STATUS_TASK_DONE
 		} else {
-			l := len(err.Error())
+			msg := string(out) + "<br>ERROR: " + string(err.Error())
+			l := len(msg)
 			if l <= 2*int(t.OutputLimit) {
 				l = 0
 			} else {
 				l -= 2 * int(t.OutputLimit)
 			}
-			t.Output = "ERROR: " + strings.ReplaceAll(string(err.Error()[l:]), "'", "\"")
+			t.Output = strings.ReplaceAll(string(msg[l:]), "'", "\"")
 			t.Status = STATUS_TASK_FAILED
 			break
 		}
