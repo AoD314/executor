@@ -105,10 +105,10 @@ func (t *Tasks) get_task_by_status(limit int, status int) []Task {
 		diff := task.Time_finish.Sub(task.Time_start)
 
 		hours := int(diff.Hours())
-		minutes := int(diff.Minutes()) % 60
-		seconds := diff.Seconds() / 60
+		minutes := int(diff.Minutes() - 60.0*float64(hours))
+		seconds := int(diff.Seconds() - 60.0*float64(minutes) - 3600.0*float64(hours))
 
-		task.Time_human = fmt.Sprintf("%02d:%02d:%2.3f", hours, minutes, seconds)
+		task.Time_human = fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
 
 		tasks = append(tasks, task)
 	}
